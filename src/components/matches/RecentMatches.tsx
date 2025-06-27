@@ -19,6 +19,7 @@ export async function RecentMatches() {
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
+              <TableHead>Competition</TableHead>
               <TableHead>Home Team</TableHead>
               <TableHead>Away Team</TableHead>
               <TableHead className="text-right">Score</TableHead>
@@ -27,12 +28,13 @@ export async function RecentMatches() {
           <TableBody>
             {matches.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">No matches recorded yet.</TableCell>
+                <TableCell colSpan={5} className="text-center">No matches recorded yet.</TableCell>
               </TableRow>
             )}
             {matches.map((match) => (
               <TableRow key={match.id}>
                 <TableCell>{format(new Date(match.date), 'MMM d, yyyy')}</TableCell>
+                <TableCell>{match.competition}</TableCell>
                 <TableCell>{teamMap.get(match.team1Id) || 'Unknown Team'}</TableCell>
                 <TableCell>{teamMap.get(match.team2Id) || 'Unknown Team'}</TableCell>
                 <TableCell className="text-right">

@@ -12,6 +12,7 @@ export interface Match {
   team1Score: number;
   team2Score: number;
   highlights: string;
+  competition: string;
 }
 
 export interface Schedule {

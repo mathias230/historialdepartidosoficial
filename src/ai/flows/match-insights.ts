@@ -12,6 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const MatchInsightsInputSchema = z.object({
+  competition: z.string().describe('The name of the competition the match was played in.'),
   team1Name: z.string().describe('The name of the first team.'),
   team2Name: z.string().describe('The name of the second team.'),
   team1Score: z.number().describe('The score of the first team.'),
@@ -36,8 +37,9 @@ const prompt = ai.definePrompt({
   input: {schema: MatchInsightsInputSchema},
   output: {schema: MatchInsightsOutputSchema},
   prompt: `You are an expert FC25 Pro Clubs match analyst. Analyze the match data and provide key insights.\n
+Competition: {{competition}}\n
 Team 1: {{team1Name}}\nTeam 2: {{team2Name}}\nTeam 1 Score: {{team1Score}}\nTeam 2 Score: {{team2Score}}\nMatch Highlights: {{matchHighlights}}\n
-Provide a concise summary of the match, focusing on the most important aspects and potential areas for improvement.`,
+Provide a concise summary of the match, focusing on the most important aspects and potential areas for improvement. Consider the context of the competition.`,
 });
 
 const matchInsightsFlow = ai.defineFlow(

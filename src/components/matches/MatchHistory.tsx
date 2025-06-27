@@ -96,6 +96,7 @@ export function MatchHistory({ teams, matches }: MatchHistoryProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
+                  <TableHead>Competition</TableHead>
                   <TableHead>Home</TableHead>
                   <TableHead>Away</TableHead>
                   <TableHead className="text-right">Score</TableHead>
@@ -103,7 +104,7 @@ export function MatchHistory({ teams, matches }: MatchHistoryProps) {
               </TableHeader>
               <TableBody>
                 {filteredMatches.length === 0 && (
-                    <TableRow><TableCell colSpan={4} className="text-center">No matches found between these teams.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center">No matches found between these teams.</TableCell></TableRow>
                 )}
                 {filteredMatches.map((match) => {
                     const homeTeam = teams.find(t => t.id === match.team1Id);
@@ -111,6 +112,7 @@ export function MatchHistory({ teams, matches }: MatchHistoryProps) {
                     return (
                         <TableRow key={match.id}>
                             <TableCell>{format(new Date(match.date), 'MMM d, yyyy')}</TableCell>
+                            <TableCell>{match.competition}</TableCell>
                             <TableCell>{homeTeam?.name}</TableCell>
                             <TableCell>{awayTeam?.name}</TableCell>
                             <TableCell className="text-right">

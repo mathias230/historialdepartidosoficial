@@ -79,15 +79,17 @@ export async function getMatchInsightsAction(
     team2Name: string,
     team1Score: number,
     team2Score: number,
-    matchHighlights: string
+    matchHighlights: string,
+    competition: string
 ) {
     try {
         const insights = await generateMatchInsights({
+            competition,
             team1Name,
             team2Name,
             team1Score,
             team2Score,
-            matchHighlights
+            matchHighlights,
         });
         return { success: true, summary: insights.summary };
     } catch (error) {

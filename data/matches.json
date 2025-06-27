@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "date": "3232-02-23",
+    "team1Id": "2025-06-27T18:19:37.988Z",
+    "team2Id": "2025-06-27T18:22:03.529Z",
+    "team1Score": 1,
+    "team2Score": 0,
+    "highlights": "",
+    "id": "2025-06-27T18:22:26.973Z",
+    "competition": "Amistoso"
+  }
+]

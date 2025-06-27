@@ -45,7 +45,8 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
       team2Name,
       match.team1Score,
       match.team2Score,
-      match.highlights
+      match.highlights,
+      match.competition
     );
 
     if (result.success) {
@@ -60,7 +61,7 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
     const team1Name = teamMap.get(match.team1Id) ?? 'Team 1';
     const team2Name = teamMap.get(match.team2Id) ?? 'Team 2';
     const date = format(new Date(match.date), 'MMM d, yyyy');
-    return `${date}: ${team1Name} ${match.team1Score} - ${match.team2Score} ${team2Name}`;
+    return `${date} (${match.competition}): ${team1Name} ${match.team1Score} - ${match.team2Score} ${team2Name}`;
   }
 
   return (

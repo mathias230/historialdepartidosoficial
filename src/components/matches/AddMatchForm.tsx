@@ -37,10 +37,17 @@ export function AddMatchForm({ teams }: { teams: Team[] }) {
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <Input id="date" name="date" type="date" required />
-            {state.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="date">Date</Label>
+              <Input id="date" name="date" type="date" required />
+              {state.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="competition">Competition</Label>
+              <Input id="competition" name="competition" placeholder="e.g. Amistoso, Super League" required />
+              {state.errors?.competition && <p className="text-sm text-destructive">{state.errors.competition}</p>}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

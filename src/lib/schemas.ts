@@ -7,6 +7,7 @@ export const addTeamSchema = z.object({
 
 export const addMatchSchema = z.object({
   date: z.string().min(1, { message: 'Please select a date.' }),
+  competition: z.string().min(1, { message: 'Please enter a competition name.' }),
   team1Id: z.string().min(1, { message: 'Please select team 1.' }),
   team2Id: z.string().min(1, { message: 'Please select team 2.' }),
   team1Score: z.coerce.number().min(0, { message: 'Score must be 0 or greater.' }),
