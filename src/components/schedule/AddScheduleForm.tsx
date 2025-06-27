@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { addScheduleAction } from '@/lib/actions';
 import type { Team } from '@/lib/types';
@@ -14,7 +13,7 @@ import { SubmitButton } from '@/components/SubmitButton';
 const initialState = { message: '', success: false };
 
 export function AddScheduleForm({ teams }: { teams: Team[] }) {
-  const [state, formAction] = useFormState(addScheduleAction, initialState);
+  const [state, formAction] = useActionState(addScheduleAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 

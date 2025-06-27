@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { addTeamAction } from '@/lib/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import { SubmitButton } from '@/components/SubmitButton';
 const initialState = { message: '', success: false };
 
 export function AddTeamForm() {
-  const [state, formAction] = useFormState(addTeamAction, initialState);
+  const [state, formAction] = useActionState(addTeamAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
