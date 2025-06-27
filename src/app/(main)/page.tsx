@@ -1,23 +1,44 @@
-import { Suspense } from 'react';
+'use client';
+
+import { Suspense, useState, useEffect } from 'react';
 import { getSchedules, getTeams } from '@/lib/storage';
 import { Countdown } from '@/components/schedule/Countdown';
 import { RecentMatches } from '@/components/matches/RecentMatches';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/context/LanguageContext';
+import type { Schedule, Team } from '@/lib/types';
 
-async function UpcomingMatch() {
-  const schedules = await getSchedules();
-  const teams = await getTeams();
+function UpcomingMatch() {
+  const { t } = useTranslation();
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [schedulesData, teamsData] = await Promise.all([getSchedules(), getTeams()]);
+      setSchedules(schedulesData);
+      setTeams(teamsData);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[200px]" />;
+  }
+
   const nextMatch = schedules.find(s => new Date(s.date) > new Date());
 
   if (!nextMatch) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Next Match</CardTitle>
+          <CardTitle className="text-center text-2xl">{t.nextMatch}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground">No upcoming matches scheduled.</p>
+          <p className="text-center text-muted-foreground">{t.noUpcomingMatches}</p>
         </CardContent>
       </Card>
     );
@@ -27,11 +48,12 @@ async function UpcomingMatch() {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to your Pro Clubs Ledger.</p>
+        <h1 className="text-3xl font-bold">{t.dashboardTitle}</h1>
+        <p className="text-muted-foreground">{t.dashboardDescription}</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">

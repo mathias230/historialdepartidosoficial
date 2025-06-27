@@ -1,29 +1,48 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { getTeams } from '@/lib/storage';
+import type { Team } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/context/LanguageContext';
 
-export async function TeamList() {
-  const teams = await getTeams();
+export function TeamList() {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    getTeams().then(data => {
+      setTeams(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[300px]" />;
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Registered Teams</CardTitle>
-        <CardDescription>A list of all teams in the ledger.</CardDescription>
+        <CardTitle>{t.registeredTeams}</CardTitle>
+        <CardDescription>{t.registeredTeamsDescription}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Team Name</TableHead>
-              <TableHead>Captain</TableHead>
+              <TableHead>{t.teamName}</TableHead>
+              <TableHead>{t.captain}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {teams.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={2} className="text-center">No teams added yet.</TableCell>
+                    <TableCell colSpan={2} className="text-center">{t.noTeamsAdded}</TableCell>
                 </TableRow>
             )}
             {teams.map((team) => (

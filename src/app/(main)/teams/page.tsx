@@ -1,14 +1,19 @@
+'use client';
+
 import { Suspense } from 'react';
 import { AddTeamForm } from '@/components/teams/AddTeamForm';
 import { TeamList } from '@/components/teams/TeamList';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/context/LanguageContext';
 
 export default function TeamsPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Team Management</h1>
-        <p className="text-muted-foreground">Add new teams and view existing ones.</p>
+        <h1 className="text-3xl font-bold">{t.teamManagement}</h1>
+        <p className="text-muted-foreground">{t.teamManagementDescription}</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">

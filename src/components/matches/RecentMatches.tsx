@@ -1,34 +1,57 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { getMatches, getTeams } from '@/lib/storage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useTranslation } from '@/context/LanguageContext';
+import type { Match, Team } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export async function RecentMatches() {
-  const matches = (await getMatches()).slice(0, 5);
-  const teams = await getTeams();
+export function RecentMatches() {
+  const { t } = useTranslation();
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [matchesData, teamsData] = await Promise.all([getMatches(), getTeams()]);
+      setMatches(matchesData.slice(0, 5));
+      setTeams(teamsData);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[300px]" />;
+  }
+
   const teamMap = new Map(teams.map((team) => [team.id, team.name]));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Results</CardTitle>
+        <CardTitle>{t.recentResults}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Competition</TableHead>
-              <TableHead>Home Team</TableHead>
-              <TableHead>Away Team</TableHead>
-              <TableHead className="text-right">Score</TableHead>
+              <TableHead>{t.date}</TableHead>
+              <TableHead>{t.competition}</TableHead>
+              <TableHead>{t.homeTeam}</TableHead>
+              <TableHead>{t.awayTeam}</TableHead>
+              <TableHead className="text-right">{t.score}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {matches.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">No matches recorded yet.</TableCell>
+                <TableCell colSpan={5} className="text-center">{t.noMatchesRecorded}</TableCell>
               </TableRow>
             )}
             {matches.map((match) => (

@@ -1,22 +1,50 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { getTeams, getMatches } from '@/lib/storage';
 import { AddMatchForm } from '@/components/matches/AddMatchForm';
 import { MatchHistory } from '@/components/matches/MatchHistory';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTranslation } from '@/context/LanguageContext';
+import type { Team, Match } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function MatchesPage() {
-  const teams = await getTeams();
-  const matches = await getMatches();
+export default function MatchesPage() {
+  const { t } = useTranslation();
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [teamsData, matchesData] = await Promise.all([getTeams(), getMatches()]);
+      setTeams(teamsData);
+      setMatches(matchesData);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-12 w-1/2" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Match Center</h1>
-        <p className="text-muted-foreground">Record results and view head-to-head stats.</p>
+        <h1 className="text-3xl font-bold">{t.matchCenter}</h1>
+        <p className="text-muted-foreground">{t.matchCenterDescription}</p>
       </div>
       <Tabs defaultValue="record">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="record">Record Match</TabsTrigger>
-          <TabsTrigger value="history">Match History</TabsTrigger>
+          <TabsTrigger value="record">{t.recordMatch}</TabsTrigger>
+          <TabsTrigger value="history">{t.matchHistory}</TabsTrigger>
         </TabsList>
         <TabsContent value="record" className="mt-4">
           <AddMatchForm teams={teams} />

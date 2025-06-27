@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import type { Schedule, Team } from '@/lib/types';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface CountdownProps {
   schedule: Schedule;
@@ -11,7 +12,7 @@ interface CountdownProps {
 
 const calculateTimeLeft = (targetDate: string) => {
   const difference = +new Date(targetDate) - +new Date();
-  let timeLeft = {};
+  let timeLeft: { [key: string]: number } = {};
 
   if (difference > 0) {
     timeLeft = {
@@ -28,6 +29,7 @@ const calculateTimeLeft = (targetDate: string) => {
 export function Countdown({ schedule, teams }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(schedule.date));
   const [isClient, setIsClient] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsClient(true);
@@ -45,8 +47,8 @@ export function Countdown({ schedule, teams }: CountdownProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Upcoming Match</CardTitle>
-          <CardDescription>Loading match details...</CardDescription>
+          <CardTitle>{t.upcomingMatch}</CardTitle>
+          <CardDescription>{t.loadingMatchDetails}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-16 w-full animate-pulse rounded-md bg-muted"></div>
@@ -55,24 +57,32 @@ export function Countdown({ schedule, teams }: CountdownProps) {
     );
   }
 
+  const getIntervalName = (interval: string): string => {
+    if (interval === 'days') return t.days;
+    if (interval === 'hours') return t.hours;
+    if (interval === 'minutes') return t.minutes;
+    if (interval === 'seconds') return t.seconds;
+    return interval;
+  }
+
   const timerComponents = Object.entries(timeLeft).map(([interval, value]) => (
     <div key={interval} className="flex flex-col items-center">
       <span className="text-4xl font-bold text-primary">{String(value).padStart(2, '0')}</span>
-      <span className="text-xs uppercase text-muted-foreground">{interval}</span>
+      <span className="text-xs uppercase text-muted-foreground">{getIntervalName(interval)}</span>
     </div>
   ));
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-center text-2xl">Next Match</CardTitle>
+        <CardTitle className="text-center text-2xl">{t.nextMatch}</CardTitle>
         <CardDescription className="text-center">
           {team1.name} vs {team2.name}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-around">
-          {timerComponents.length > 0 ? timerComponents : <p className="text-xl">Match has started!</p>}
+          {timerComponents.length > 0 ? timerComponents : <p className="text-xl">{t.matchHasStarted}</p>}
         </div>
       </CardContent>
     </Card>

@@ -7,7 +7,7 @@ import { addTeamSchema, addMatchSchema, addScheduleSchema } from './schemas';
 import { addTeam, addMatch, addSchedule } from './storage';
 
 export type FormState = {
-  message: string;
+  messageKey: string;
   errors?: Record<string, string[] | undefined>;
   success: boolean;
 };
@@ -17,7 +17,7 @@ export async function addTeamAction(prevState: FormState, formData: FormData): P
 
   if (!validatedFields.success) {
     return {
-      message: 'Failed to create team.',
+      messageKey: 'Failed to create team.', // This is not a key, but a fallback. Zod errors are handled separately.
       errors: validatedFields.error.flatten().fieldErrors,
       success: false,
     };
@@ -26,9 +26,9 @@ export async function addTeamAction(prevState: FormState, formData: FormData): P
   try {
     await addTeam(validatedFields.data);
     revalidatePath('/teams');
-    return { message: 'Team added successfully.', success: true };
+    return { messageKey: 'teamAddedSuccess', success: true };
   } catch (e) {
-    return { message: 'An error occurred while adding the team.', success: false };
+    return { messageKey: 'teamAddedError', success: false };
   }
 }
 
@@ -37,7 +37,7 @@ export async function addMatchAction(prevState: FormState, formData: FormData): 
 
   if (!validatedFields.success) {
     return {
-      message: 'Failed to record match.',
+      messageKey: 'Failed to record match.',
       errors: validatedFields.error.flatten().fieldErrors,
       success: false,
     };
@@ -47,9 +47,9 @@ export async function addMatchAction(prevState: FormState, formData: FormData): 
     await addMatch({ ...validatedFields.data, highlights: validatedFields.data.highlights || '' });
     revalidatePath('/matches');
     revalidatePath('/');
-    return { message: 'Match recorded successfully.', success: true };
+    return { messageKey: 'matchRecordedSuccess', success: true };
   } catch (e) {
-    return { message: 'An error occurred while recording the match.', success: false };
+    return { messageKey: 'matchRecordedError', success: false };
   }
 }
 
@@ -58,7 +58,7 @@ export async function addScheduleAction(prevState: FormState, formData: FormData
 
     if (!validatedFields.success) {
         return {
-            message: 'Failed to schedule match.',
+            messageKey: 'Failed to schedule match.',
             errors: validatedFields.error.flatten().fieldErrors,
             success: false,
         }
@@ -68,9 +68,9 @@ export async function addScheduleAction(prevState: FormState, formData: FormData
         await addSchedule(validatedFields.data);
         revalidatePath('/schedule');
         revalidatePath('/');
-        return { message: 'Match scheduled successfully.', success: true };
+        return { messageKey: 'matchScheduledSuccess', success: true };
     } catch (e) {
-        return { message: 'An error occurred while scheduling the match.', success: false };
+        return { messageKey: 'matchScheduledError', success: false };
     }
 }
 
@@ -91,8 +91,8 @@ export async function getMatchInsightsAction(
             team2Score,
             matchHighlights,
         });
-        return { success: true, summary: insights.summary };
+        return { success: true, summary: insights.summary, errorKey: null };
     } catch (error) {
-        return { success: false, summary: "Failed to generate insights." };
+        return { success: false, summary: null, errorKey: 'failedToGenerateInsights' };
     }
 }

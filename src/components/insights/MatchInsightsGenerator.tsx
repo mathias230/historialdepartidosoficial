@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Loader2, Lightbulb } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from '@/context/LanguageContext';
+import type { TranslationKeys } from '@/locales/en';
 
 interface MatchInsightsGeneratorProps {
   teams: Team[];
@@ -19,17 +21,18 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
   const [isLoading, setIsLoading] = useState(false);
   const [insights, setInsights] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const teamMap = new Map(teams.map((team) => [team.id, team.name]));
 
   const handleGenerate = async () => {
     if (!selectedMatchId) {
-        setError('Please select a match.');
+        setError(t.pleaseSelectMatch);
         return;
     }
     const match = matches.find(m => m.id === selectedMatchId);
     if (!match) {
-        setError('Selected match not found.');
+        setError(t.selectedMatchNotFound);
         return;
     }
 
@@ -49,10 +52,11 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
       match.competition
     );
 
-    if (result.success) {
+    if (result.success && result.summary) {
       setInsights(result.summary);
     } else {
-      setError(result.summary);
+      const errorKey = (result.errorKey || 'failedToGenerateInsights') as TranslationKeys;
+      setError(t[errorKey]);
     }
     setIsLoading(false);
   };
@@ -67,14 +71,14 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>AI-Powered Match Insights</CardTitle>
-        <CardDescription>Select a recent match to generate an analytical summary.</CardDescription>
+        <CardTitle>{t.aiPoweredMatchInsights}</CardTitle>
+        <CardDescription>{t.aiPoweredMatchInsightsDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
             <Select onValueChange={setSelectedMatchId}>
                 <SelectTrigger>
-                    <SelectValue placeholder="Select a past match" />
+                    <SelectValue placeholder={t.selectPastMatch} />
                 </SelectTrigger>
                 <SelectContent>
                     {matches.map(match => (
@@ -90,14 +94,14 @@ export function MatchInsightsGenerator({ teams, matches }: MatchInsightsGenerato
         <div>
             <Button onClick={handleGenerate} disabled={isLoading || !selectedMatchId} className="w-full">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4" />}
-                Generate Insights
+                {t.generateInsights}
             </Button>
         </div>
 
         {insights && (
             <Card className="bg-muted">
                 <CardHeader>
-                    <CardTitle className="text-lg">Analysis Summary</CardTitle>
+                    <CardTitle className="text-lg">{t.analysisSummary}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm whitespace-pre-wrap">{insights}</p>

@@ -1,12 +1,35 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { getSchedules, getTeams } from '@/lib/storage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { Calendar, Clock } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
+import type { Schedule, Team } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export async function UpcomingMatches() {
-  const schedules = await getSchedules();
-  const teams = await getTeams();
+export function UpcomingMatches() {
+  const { t } = useTranslation();
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [schedulesData, teamsData] = await Promise.all([getSchedules(), getTeams()]);
+      setSchedules(schedulesData);
+      setTeams(teamsData);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[400px]" />;
+  }
+
   const teamMap = new Map(teams.map((team) => [team.id, team.name]));
 
   const upcoming = schedules.filter(s => new Date(s.date) > new Date());
@@ -14,21 +37,21 @@ export async function UpcomingMatches() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upcoming Matches</CardTitle>
-        <CardDescription>All scheduled future matches.</CardDescription>
+        <CardTitle>{t.upcomingMatches}</CardTitle>
+        <CardDescription>{t.upcomingMatchesDescription}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Matchup</TableHead>
-              <TableHead>Date & Time</TableHead>
+              <TableHead>{t.matchup}</TableHead>
+              <TableHead>{t.dateTime}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
              {upcoming.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={2} className="text-center">No upcoming matches scheduled.</TableCell>
+                    <TableCell colSpan={2} className="text-center">{t.noUpcomingMatchesScheduled}</TableCell>
                 </TableRow>
             )}
             {upcoming.map((schedule) => (

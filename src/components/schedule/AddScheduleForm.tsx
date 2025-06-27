@@ -9,44 +9,49 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SubmitButton } from '@/components/SubmitButton';
+import { useTranslation } from '@/context/LanguageContext';
+import type { TranslationKeys } from '@/locales/en';
 
-const initialState = { message: '', success: false };
+
+const initialState = { messageKey: '', success: false };
 
 export function AddScheduleForm({ teams }: { teams: Team[] }) {
   const [state, formAction] = useActionState(addScheduleAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (state.message) {
+    if (state.messageKey) {
+      const key = state.messageKey as TranslationKeys;
       if (state.success) {
-        toast({ title: 'Success', description: state.message });
+        toast({ title: t.success, description: t[key] });
         formRef.current?.reset();
       } else {
-        toast({ title: 'Error', description: state.message, variant: 'destructive' });
+        toast({ title: t.error, description: t[key], variant: 'destructive' });
       }
     }
-  }, [state, toast]);
+  }, [state, toast, t]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Schedule a Match</CardTitle>
-        <CardDescription>Set up an upcoming match between two teams.</CardDescription>
+        <CardTitle>{t.scheduleAMatch}</CardTitle>
+        <CardDescription>{t.scheduleAMatchDescription}</CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="date">Date & Time</Label>
+            <Label htmlFor="date">{t.dateTime}</Label>
             <Input id="date" name="date" type="datetime-local" required />
             {state.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="team1Id">Team 1</Label>
+              <Label htmlFor="team1Id">{t.team1}</Label>
               <Select name="team1Id" required>
-                <SelectTrigger><SelectValue placeholder="Select Team 1" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t.selectTeam1} /></SelectTrigger>
                 <SelectContent>
                   {teams.map(team => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                 </SelectContent>
@@ -54,9 +59,9 @@ export function AddScheduleForm({ teams }: { teams: Team[] }) {
               {state.errors?.team1Id && <p className="text-sm text-destructive">{state.errors.team1Id}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team2Id">Team 2</Label>
+              <Label htmlFor="team2Id">{t.team2}</Label>
               <Select name="team2Id" required>
-                <SelectTrigger><SelectValue placeholder="Select Team 2" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t.selectTeam2} /></SelectTrigger>
                 <SelectContent>
                   {teams.map(team => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                 </SelectContent>
@@ -65,7 +70,7 @@ export function AddScheduleForm({ teams }: { teams: Team[] }) {
             </div>
           </div>
           
-          <SubmitButton>Schedule Match</SubmitButton>
+          <SubmitButton>{t.scheduleMatch}</SubmitButton>
         </form>
       </CardContent>
     </Card>

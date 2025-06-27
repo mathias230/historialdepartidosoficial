@@ -10,52 +10,55 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { SubmitButton } from '@/components/SubmitButton';
+import { useTranslation } from '@/context/LanguageContext';
+import type { TranslationKeys } from '@/locales/en';
 
-const initialState = { message: '', success: false };
+const initialState = { messageKey: '', success: false };
 
 export function AddMatchForm({ teams }: { teams: Team[] }) {
   const [state, formAction] = useActionState(addMatchAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (state.message) {
+    if (state.messageKey) {
+      const key = state.messageKey as TranslationKeys;
       if (state.success) {
-        toast({ title: 'Success', description: state.message });
+        toast({ title: t.success, description: t[key] });
         formRef.current?.reset();
       } else {
-        toast({ title: 'Error', description: state.message, variant: 'destructive' });
+        toast({ title: t.error, description: t[key], variant: 'destructive' });
       }
     }
-  }, [state, toast]);
+  }, [state, toast, t]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Record Match Result</CardTitle>
-        <CardDescription>Enter the details of a completed match.</CardDescription>
+        <CardTitle>{t.recordMatchResult}</CardTitle>
+        <CardDescription>{t.recordMatchResultDescription}</CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">{t.date}</Label>
               <Input id="date" name="date" type="date" required />
               {state.errors?.date && <p className="text-sm text-destructive">{state.errors.date}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="competition">Competition</Label>
-              <Input id="competition" name="competition" placeholder="e.g. Amistoso, Super League" required />
+              <Label htmlFor="competition">{t.competition}</Label>
+              <Input id="competition" name="competition" placeholder={t.competitionPlaceholder} required />
               {state.errors?.competition && <p className="text-sm text-destructive">{state.errors.competition}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="team1Id">Team 1 (Home)</Label>
-                <input name="team1Id" type="hidden" />
+              <Label htmlFor="team1Id">{t.team1Home}</Label>
                 <Select name="team1Id" required>
-                  <SelectTrigger><SelectValue placeholder="Select Team 1" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t.selectTeam1} /></SelectTrigger>
                   <SelectContent>
                     {teams.map(team => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                   </SelectContent>
@@ -63,9 +66,9 @@ export function AddMatchForm({ teams }: { teams: Team[] }) {
               {state.errors?.team1Id && <p className="text-sm text-destructive">{state.errors.team1Id}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team2Id">Team 2 (Away)</Label>
+              <Label htmlFor="team2Id">{t.team2Away}</Label>
                 <Select name="team2Id" required>
-                  <SelectTrigger><SelectValue placeholder="Select Team 2" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t.selectTeam2} /></SelectTrigger>
                   <SelectContent>
                     {teams.map(team => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                   </SelectContent>
@@ -76,23 +79,23 @@ export function AddMatchForm({ teams }: { teams: Team[] }) {
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="team1Score">Team 1 Score</Label>
+                <Label htmlFor="team1Score">{t.team1Score}</Label>
                 <Input id="team1Score" name="team1Score" type="number" min="0" defaultValue="0" required />
                 {state.errors?.team1Score && <p className="text-sm text-destructive">{state.errors.team1Score}</p>}
             </div>
              <div className="space-y-2">
-                <Label htmlFor="team2Score">Team 2 Score</Label>
+                <Label htmlFor="team2Score">{t.team2Score}</Label>
                 <Input id="team2Score" name="team2Score" type="number" min="0" defaultValue="0" required />
                 {state.errors?.team2Score && <p className="text-sm text-destructive">{state.errors.team2Score}</p>}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="highlights">Highlights</Label>
-            <Textarea id="highlights" name="highlights" placeholder="Any notable moments, goals, or plays..." />
+            <Label htmlFor="highlights">{t.highlights}</Label>
+            <Textarea id="highlights" name="highlights" placeholder={t.highlightsPlaceholder} />
           </div>
 
-          <SubmitButton>Record Match</SubmitButton>
+          <SubmitButton>{t.recordMatch}</SubmitButton>
         </form>
       </CardContent>
     </Card>
