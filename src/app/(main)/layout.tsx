@@ -18,9 +18,11 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
+  SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/ui/button';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -62,6 +64,12 @@ export default function MainLayout({
               ))}
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <div className="flex justify-around p-2">
+              <LanguageSelector />
+              <ThemeToggle />
+            </div>
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
