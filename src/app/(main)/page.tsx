@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { getSchedules, getTeams } from '@/lib/storage';
 import { Countdown } from '@/components/schedule/Countdown';
 import { RecentMatches } from '@/components/matches/RecentMatches';
@@ -15,15 +15,18 @@ function UpcomingMatch() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [schedulesData, teamsData] = await Promise.all([getSchedules(), getTeams()]);
-      setSchedules(schedulesData);
-      setTeams(teamsData);
-      setLoading(false);
-    }
-    fetchData();
+  const fetchData = useCallback(() => {
+    setSchedules(getSchedules());
+    setTeams(getTeams());
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    setLoading(false);
+    window.addEventListener('storage', fetchData);
+    return () => window.removeEventListener('storage', fetchData);
+  }, [fetchData]);
+
 
   if (loading) {
     return <Skeleton className="h-[200px]" />;

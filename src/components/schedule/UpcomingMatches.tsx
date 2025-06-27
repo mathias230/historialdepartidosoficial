@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getSchedules, getTeams } from '@/lib/storage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -16,15 +16,20 @@ export function UpcomingMatches() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [schedulesData, teamsData] = await Promise.all([getSchedules(), getTeams()]);
-      setSchedules(schedulesData);
-      setTeams(teamsData);
-      setLoading(false);
-    }
-    fetchData();
+  const fetchData = useCallback(() => {
+    setSchedules(getSchedules());
+    setTeams(getTeams());
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    setLoading(false);
+
+    window.addEventListener('storage', fetchData);
+    return () => {
+      window.removeEventListener('storage', fetchData);
+    };
+  }, [fetchData]);
 
   if (loading) {
     return <Skeleton className="h-[400px]" />;

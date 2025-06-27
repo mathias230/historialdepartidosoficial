@@ -1,55 +1,79 @@
-'use server';
+'use client';
 
-import { promises as fs } from 'fs';
-import path from 'path';
 import type { Team, Match, Schedule } from './types';
 
-const dataDir = path.join(process.cwd(), 'data');
+const TEAMS_KEY = 'teams';
+const MATCHES_KEY = 'matches';
+const SCHEDULES_KEY = 'schedules';
 
-async function readFile<T>(filename: string): Promise<T[]> {
-  try {
-    const filePath = path.join(dataDir, filename);
-    const data = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(data) as T[];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return []; // File doesn't exist, return empty array
+// Helper to dispatch a storage event to trigger UI updates
+function dispatchStorageEvent() {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('storage'));
     }
-    throw error;
+}
+
+function readFromLocalStorage<T>(key: string): T[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+  try {
+    const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : [];
+  } catch (error) {
+    console.error(`Error reading from localStorage key "${key}":`, error);
+    return [];
   }
 }
 
-async function writeFile<T>(filename: string, data: T[]): Promise<void> {
-  const filePath = path.join(dataDir, filename);
-  await fs.mkdir(dataDir, { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+function writeToLocalStorage<T>(key: string, data: T[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    window.localStorage.setItem(key, JSON.stringify(data));
+    dispatchStorageEvent();
+  } catch (error) {
+    console.error(`Error writing to localStorage key "${key}":`, error);
+  }
 }
 
 // Teams
-export const getTeams = async (): Promise<Team[]> => readFile<Team>('teams.json');
-export const addTeam = async (team: Omit<Team, 'id'>): Promise<Team> => {
-  const teams = await getTeams();
+export const getTeams = (): Team[] => {
+    const teams = readFromLocalStorage<Team>(TEAMS_KEY);
+    return teams.sort((a, b) => a.name.localeCompare(b.name));
+};
+export const addTeam = (team: Omit<Team, 'id'>): Team => {
+  const teams = getTeams();
   const newTeam: Team = { ...team, id: new Date().toISOString() };
-  await writeFile('teams.json', [...teams, newTeam]);
+  writeToLocalStorage(TEAMS_KEY, [...teams, newTeam]);
   return newTeam;
 };
 
 // Matches
-export const getMatches = async (): Promise<Match[]> => readFile<Match>('matches.json');
-export const addMatch = async (match: Omit<Match, 'id'>): Promise<Match> => {
-  const matches = await getMatches();
+export const getMatches = (): Match[] => {
+    const matches = readFromLocalStorage<Match>(MATCHES_KEY);
+    return matches.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+};
+export const addMatch = (match: Omit<Match, 'id'>): Match => {
+  const matches = getMatches();
   const newMatch: Match = { ...match, id: new Date().toISOString() };
-  await writeFile('matches.json', [newMatch, ...matches]);
+  const updatedMatches = [newMatch, ...matches];
+  updatedMatches.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  writeToLocalStorage(MATCHES_KEY, updatedMatches);
   return newMatch;
 };
 
 // Schedules
-export const getSchedules = async (): Promise<Schedule[]> => readFile<Schedule>('schedules.json');
-export const addSchedule = async (schedule: Omit<Schedule, 'id'>): Promise<Schedule> => {
-  const schedules = await getSchedules();
+export const getSchedules = (): Schedule[] => {
+    const schedules = readFromLocalStorage<Schedule>(SCHEDULES_KEY);
+    return schedules.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+export const addSchedule = (schedule: Omit<Schedule, 'id'>): Schedule => {
+  const schedules = getSchedules();
   const newSchedule: Schedule = { ...schedule, id: new Date().toISOString() };
-  schedules.push(newSchedule);
-  schedules.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  await writeFile('schedules.json', schedules);
+  const updatedSchedules = [...schedules, newSchedule];
+  updatedSchedules.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  writeToLocalStorage(SCHEDULES_KEY, updatedSchedules);
   return newSchedule;
 };

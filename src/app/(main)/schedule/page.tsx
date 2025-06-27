@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { getTeams } from '@/lib/storage';
 import { AddScheduleForm } from '@/components/schedule/AddScheduleForm';
 import { UpcomingMatches } from '@/components/schedule/UpcomingMatches';
@@ -13,14 +13,18 @@ export default function SchedulePage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchTeams() {
-      const teamsData = await getTeams();
-      setTeams(teamsData);
-      setLoading(false);
-    }
-    fetchTeams();
+  const fetchTeams = useCallback(() => {
+      setTeams(getTeams());
   }, []);
+
+  useEffect(() => {
+    fetchTeams();
+    setLoading(false);
+    window.addEventListener('storage', fetchTeams);
+    return () => {
+      window.removeEventListener('storage', fetchTeams);
+    };
+  }, [fetchTeams]);
 
   return (
     <div className="space-y-8">

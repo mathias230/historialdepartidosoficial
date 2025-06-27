@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getTeams } from '@/lib/storage';
 import type { Team } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,12 +14,19 @@ export function TeamList() {
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    getTeams().then(data => {
-      setTeams(data);
-      setLoading(false);
-    });
+  const fetchTeams = useCallback(() => {
+    setTeams(getTeams());
   }, []);
+
+  useEffect(() => {
+    fetchTeams();
+    setLoading(false);
+
+    window.addEventListener('storage', fetchTeams);
+    return () => {
+      window.removeEventListener('storage', fetchTeams);
+    };
+  }, [fetchTeams]);
 
   if (loading) {
     return <Skeleton className="h-[300px]" />;

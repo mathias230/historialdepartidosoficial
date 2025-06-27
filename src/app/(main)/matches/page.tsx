@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getTeams, getMatches } from '@/lib/storage';
 import { AddMatchForm } from '@/components/matches/AddMatchForm';
 import { MatchHistory } from '@/components/matches/MatchHistory';
@@ -15,15 +15,20 @@ export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [teamsData, matchesData] = await Promise.all([getTeams(), getMatches()]);
-      setTeams(teamsData);
-      setMatches(matchesData);
-      setLoading(false);
-    }
-    fetchData();
+  const fetchData = useCallback(() => {
+    setTeams(getTeams());
+    setMatches(getMatches());
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    setLoading(false);
+
+    window.addEventListener('storage', fetchData);
+    return () => {
+      window.removeEventListener('storage', fetchData);
+    };
+  }, [fetchData]);
 
   if (loading) {
     return (
